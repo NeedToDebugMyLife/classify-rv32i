@@ -23,13 +23,23 @@
 #   Result: [ 0, 0, 3,  0, 5]
 # ==============================================================================
 relu:
-    li t0, 1             
+    li t0, 1
     blt a1, t0, error     
-    li t1, 0             
+    li t1, 0    # array index
 
 loop_start:
-    # TODO: Add your own implementation
+    bge t1, a1, loop_end
+    lw t3, 0(a0)              # load element from array
+    bge t3, x0, loop_next
+    sw x0, 0(a0)              # set element to 0
+loop_next:
+    addi t1, t1, 1
+    addi a0, a0, 4
+    j loop_start
+
+loop_end:
+    jr ra
 
 error:
-    li a0, 36          
+    li a0, 36      
     j exit          

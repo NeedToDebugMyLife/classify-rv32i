@@ -166,7 +166,27 @@ classify:
     
     lw t0, 0(s3)
     lw t1, 0(s8)
-    # mul a0, t0, t1 # FIXME: Replace 'mul' with your own implementation
+    
+# =================================================================
+
+    # mul a0, t0, t1
+    addi sp, sp, -8
+    sw t0, 0(sp)
+    sw t1, 4(sp)
+    li t4, 0
+
+    jal opt
+    jal mult
+    jal signed
+    
+    mv a0, t4
+
+    lw t0, 0(sp)
+    lw t1, 4(sp)
+    addi sp, sp, 8
+
+# =================================================================
+
     slli a0, a0, 2
     jal malloc 
     beq a0, x0, error_malloc
@@ -174,7 +194,7 @@ classify:
     
     mv a6, a0 # h 
     
-    mv a0, s0 # move m0 array to first arg
+    mv a0, s0    # move m0 array to first arg
     lw a1, 0(s3) # move m0 rows to second arg
     lw a2, 0(s4) # move m0 cols to third arg
     
@@ -203,9 +223,28 @@ classify:
     mv a0, s9 # move h to the first argument
     lw t0, 0(s3)
     lw t1, 0(s8)
-    # mul a1, t0, t1 # length of h array and set it as second argument
-    # FIXME: Replace 'mul' with your own implementation
+
+# =================================================================
+
+    # mul a1, t0, t1 
+    # length of h array and set it as second argument
+    addi sp, sp, -8
+    sw t0, 0(sp)
+    sw t1, 4(sp)
+    li t4, 0
     
+    jal opt
+    jal mult
+    jal signed
+    
+    mv a1, t4
+
+    lw t0, 0(sp)
+    lw t1, 4(sp)
+    addi sp, sp, 8
+
+# =================================================================
+
     jal relu
     
     lw a0, 0(sp)
@@ -226,7 +265,27 @@ classify:
     
     lw t0, 0(s3)
     lw t1, 0(s6)
-    # mul a0, t0, t1 # FIXME: Replace 'mul' with your own implementation
+    
+# =================================================================
+
+    # mul a0, t0, t1
+    addi sp, sp, -8
+    sw t0, 0(sp)
+    sw t1, 4(sp)
+    li t4, 0
+    
+    jal opt
+    jal mult
+    jal signed
+    
+    mv a0, t4
+
+    lw t0, 0(sp)
+    lw t1, 4(sp)
+    addi sp, sp, 8
+
+# =================================================================
+
     slli a0, a0, 2
     jal malloc 
     beq a0, x0, error_malloc
@@ -263,9 +322,9 @@ classify:
     sw a3, 12(sp)
     
     lw a0, 16(a1) # load filename string into first arg
-    mv a1, s10 # load array into second arg
-    lw a2, 0(s5) # load number of rows into fourth arg
-    lw a3, 0(s8) # load number of cols into third arg
+    mv a1, s10    # load array into second arg
+    lw a2, 0(s5)  # load number of rows into fourth arg
+    lw a3, 0(s8)  # load number of cols into third arg
     
     jal write_matrix
     
@@ -286,9 +345,28 @@ classify:
     mv a0, s10 # load o array into first arg
     lw t0, 0(s3)
     lw t1, 0(s6)
-    mul a1, t0, t1 # load length of array into second arg
-    # FIXME: Replace 'mul' with your own implementation
+
+# =================================================================
+
+    # mul a1, t0, t1
+    # load length of array into second arg
+    addi sp, sp, -8
+    sw t0, 0(sp)
+    sw t1, 4(sp)
+    li t4, 0
+
+    jal opt
+    jal mult
+    jal signed
     
+    mv a1, t4
+
+    lw t0, 0(sp)
+    lw t1, 4(sp)
+    addi sp, sp, 8
+    
+# =================================================================
+
     jal argmax
     
     mv t0, a0 # move return value of argmax into t0
@@ -357,8 +435,8 @@ epilouge:
 
     lw ra, 0(sp)
     
-    lw s0, 4(sp) # m0 matrix
-    lw s1, 8(sp) # m1 matrix
+    lw s0, 4(sp)  # m0 matrix
+    lw s1, 8(sp)  # m1 matrix
     lw s2, 12(sp) # input matrix
     
     lw s3, 16(sp) 
@@ -370,7 +448,7 @@ epilouge:
     lw s7, 32(sp)
     lw s8, 36(sp)
     
-    lw s9, 40(sp) # h
+    lw s9, 40(sp)  # h
     lw s10, 44(sp) # o
     
     addi sp, sp, 48
@@ -384,3 +462,49 @@ error_args:
 error_malloc:
     li a0, 26
     j exit
+
+# =======================================================
+
+opt:
+    # t0 = abs(t0)
+    srai t5, t0, 31
+    xor t0, t0, t5
+    sub t0, t0, t5
+    
+    # t1 = abs(t1)
+    srai t5, t1, 31
+    xor t1, t1, t5
+    sub t1, t1, t5
+    jr ra
+
+# =======================================================
+
+mult:
+    # compute t0*t1
+    beq t1, zero, mult_end
+loop_mul:
+    andi t5, t1, 0x1
+    beq t5, zero, loop_mult_end
+    add t4, t4, t0
+loop_mult_end:
+    slli t0, t0, 1
+    srli t1, t1, 1
+    j mult
+mult_end:
+    jr ra
+
+# =======================================================
+
+signed:
+    lw t0, 0(sp)
+    lw t1, 4(sp)
+
+    slt t0, t0, zero        # check sign of t0
+    slt t1, t1, zero        # check sign of t1
+    beq t0, t1, signed_end
+    xori t4, t4, 0xFFFFFFFF
+    addi t4, t4, 1
+signed_end:
+    jr ra
+
+# =======================================================
