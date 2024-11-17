@@ -378,7 +378,7 @@ Input two matrix (in 1-D array format), return result matrix (in 1-D array forma
 
 ### `Implement`
 1. Use nested-loop to traverse the two input array and check elements  
-   (1) outer loop traverses each row of input array 1
+   (1) outer loop traverses each row of input array 1  
    (2) inner loop traverses each column of input array 2
 2. Use dot to compute the dot product result
 3. Use stride of input array 2 to get the next column 
