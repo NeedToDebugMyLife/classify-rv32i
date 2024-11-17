@@ -214,7 +214,7 @@ opt:
    (1) If multiplier equals to 0, then end checking  
    (2) If multiplier dosen't equal to 0, then keep checking
 2. Check the last bit of multiplier  
-   (1) If the last bit equals to 0, then accumulate multiplier to the result
+   (1) If the last bit equals to 0, then accumulate multiplier to the result  
    (2) If the last bit equals to 1, then skip
 3.  Right shift muliplicand with one bit 
 4.  Left shift muliplier with one bit
