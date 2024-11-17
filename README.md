@@ -126,7 +126,7 @@ Traverse the input integer array , then find its maximum value and returns the p
 
 ### `Implement`
 1. Use loop to traverse the input array and check elements  
-    (1) if checked element is greater than the current maximum value ~(init~ ~0)~,  
+    (1) if checked element is greater than the current maximum value (init 0),  
     &emsp;&nbsp; then update the maximum value and index  
     (2) if checked element is less equal than the current maximum value, then skip
 2. Use `lw` to get the element from array
